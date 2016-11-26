@@ -1,0 +1,73 @@
+#! /bin/sh
+
+#/bin/mount -a
+/bin/echo rcS Start...
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin
+LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib:$LD_LIBRARY_PATH
+runlevel=S
+prevlevel=N
+umask 022
+export PATH runlevel prevlevel LD_LIBRARY_PATH
+
+/bin/hostname -F /etc/HOSTNAME
+
+#mount basic file system
+#/bin/mount -t proc proc /proc
+#/bin/mount -t sysfs sysfs /sys
+#/bin/mount -t usbfs none /proc/bus/usb
+/bin/mount -n -t proc none /proc
+/bin/mount -n -t sysfs none /sys
+/bin/mount -n -t usbfs none /proc/bus/usb
+
+#Start mdev,enable hotplug........
+#/bin/mount -t ramfs none /dev
+/bin/mount -t tmpfs -o size=64k,mode=0755 tmpfs /dev
+/bin/mkdir -p /dev/pts
+#/bin/mount -t devpts devpts /dev/pts -o mode=0622
+/bin/mount -n -t devpts none /dev/pts -o mode=0622
+
+echo /sbin/mdev > /proc/sys/kernel/hotplug
+#/bin/sysctl -w kernel.hotplug=/bin/mdev
+/sbin/mdev -s
+/usr/bin/hotplug &
+
+#mount other necessary file system 
+/bin/mkdir -p /dev/shm
+/bin/mount -t tmpfs tmpfs /dev/shm
+/bin/mount -t tmpfs none /tmp
+/bin/mount -t tmpfs none /var
+/bin/mkdir -p /var/empty
+/bin/mkdir -p /var/log
+/bin/mkdir -p /var/lock
+/bin/mkdir -p /var/run
+/bin/mkdir -p /var/tmp
+
+/bin/mkdir -p /var/log
+syslogd
+
+#mount Qt partition
+if mount|grep -q "on / type nfs" ;then
+        echo "Don't mount qt partition to nfs system"
+else
+        echo "Mount qt partition"
+        /bin/mount -t auto /dev/mtdblock4 /opt
+fi
+
+/etc/init.d/eth0-ifconfig
+
+echo "[haizhi] hello, busybox!"
+if [ -f /opt/Qtopia4/bin/Qtopia ] ; then
+	/opt/Qtopia4/bin/Qtopia &
+	/bin/echo "Start Qtopia4..."> /dev/tty1
+
+elif [ -f /opt/Qtopia2/bin/Qtopia ] ; then
+	/opt/Qtopia2/bin/Qtopia &
+	/bin/echo "Start Qtopia2..."> /dev/tty1
+
+elif [ -f /opt/Qt4.7/bin/Qt ] ; then
+	/opt/Qt4.7/bin/Qt &
+	/bin/echo "Start Qt4.7..."> /dev/tty1
+else
+	/bin/echo "No qt system found!"> /dev/tty1
+fi
+

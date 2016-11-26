@@ -1,0 +1,7 @@
+::sysinit:/etc/init.d/rcS
+::respawn:-/bin/sh
+#ttySAC0::askfirst:-/bin/sh
+::ctrlaltdel:/bin/reboot
+::shutdown:/bin/sync
+::shutdown:/bin/umount -a -r
+::shutdown:/sbin/swapoff -a

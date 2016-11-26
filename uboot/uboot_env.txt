@@ -1,0 +1,18 @@
+[SBOTE]# printenv
+bootargs=noinitrd root=/dev/mtdblock5 rw init=/linuxrc console=ttySAC0,115200 mem=0x4000000
+bootcmd=nand read.i 0x30008000 0x200000 0x360000; bootm 0x30008000
+bootdelay=1
+baudrate=115200
+ethaddr=ba:98:76:54:32:10
+netmask=255.255.255.0
+setnfsargs=setenv bootargs "noinitrd console=ttySAC0,115200 mem=64M init=/linuxrc root=/dev/nfs rw nfsroot=192.168.1.200:/home/sbote/Super2440/Super2440Rootfs ip=192.168.1.240:192.168.1.200:192.168.1.1:255.255.255.0:Super2440:eth0:off"
+ethact=dm9000
+ipaddr=192.168.5.214
+gatewayip=192.168.5.254
+serverip=192.168.7.242
+nfsboot=nfs 30008000 192.168.7.242:/tftp/uImage;bootm 30008000
+stdin=serial
+stdout=serial
+stderr=serial
+
+Environment size: 657/131068 bytes
